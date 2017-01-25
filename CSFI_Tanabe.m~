@@ -119,11 +119,11 @@ xlabel CSFI
 ylabel VFI
 
 title Early
-lsline
+% lsline
 
 mdl = fitlm(x,y)
 
-[h,p] = corr(x, y)
+[h,p] = corr(G.CSFI_rate(inds), G.VFI_rate(inds))
 
 % MD
 x = G.CSFI_rate(inds);
@@ -141,7 +141,7 @@ mdl = fitlm(x,y)
 
 [h,p] = corr(x, y)
 
-%% fit 2d VFI
+%% fit 2d
 x = G.CSFI_rate(inds);
 y = G.VFI_rate(inds);
 
@@ -181,51 +181,7 @@ corrcoef(x,y)
  
 [h,p] = corr(G.CSFI_rate(inds), G.VFI_rate(inds))
 
-
-%% fit 2d MD
-x = G.CSFI_rate(inds);
-y = G.MD_30_2(inds);
-
-[p,ErrorEst] = polyfit(x, y,2);
-y_fit = polyval(p,x,ErrorEst);
-
-figure; hold on;
-% each subject
-plot(x,y,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
-
-% fit 
-plot(x,y_fit,'.');
-
-
-% figure;hold on;
-% plot(G.CSFI_rate(inds), G.VFI_rate(inds),'o',t2,y2)
-xlabel 'CSFI %'
-ylabel MD
-
-% % figure; hold on;
-% res = y - y_fit;
-% plot(x,res,'o')
-
-% 
-[y_fit,delta] = polyval(p,x,ErrorEst);
-
-% figure; hold on;
-% 
-% plot(x,y,'o')
-% plot(x,y_fit,'g.')
-
-% 95% tile
-plot(x,y_fit+2*delta,'g.',...
-     x,y_fit-2*delta,'g.');
-
-corrcoef(x,y)
- 
-[h,p] = corr(G.CSFI_rate(inds), G.VFI_rate(inds))
-
-return
-% SO 2017/1/25
-
-%% CSFI vs VFI 
+%% CSFI vs VFI
 % plot(C.CSFI_rate,C.VFI_rate,'o')
 % plot(N.CSFI_rate,N.VFI_rate,'o')
 % plot(P.CSFI_rate,P.VFI_rate,'o')

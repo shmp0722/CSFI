@@ -2,7 +2,7 @@ function CSFI_Tanabe
 
 %% Load whole data
 
-T = readtable('CSFI_data.csv');
+% T = readtable('CSFI_data.csv');
 C = readtable('Normal.csv');
 N = readtable('NTG.csv');
 P = readtable('POAG.csv');
@@ -28,6 +28,22 @@ boxplot(G.age,G.Type)
 hold off
 
 [p, h] = ranksum(N.age, P.age)
+
+[p, h] = ranksum(N.MD_30_2, P.MD_30_2)
+
+[p, h] = ranksum(N.VFI_rate, P.VFI_rate)
+
+
+nanmean(N.MD_30_2)
+nanmean(P.MD_30_2)
+
+nanmean(N.VFI_rate)
+nanmean(P.VFI_rate)
+
+%% Gender
+% NTG f 117: m 209
+% POAG 109:226
+
 
 %% CSFI vs VFI
 figure; hold on;
@@ -135,6 +151,8 @@ ylabel 'VFI'
 %
 lsline
 
+[h,p] = corr(G.MD_30_2,G.VFI_rate)
+
 mdl = fitlm(G.MD_30_2,G.VFI_rate)
 
 % ANOVA ??????????????????????????????????????????
@@ -149,8 +167,9 @@ coefCI(mdl)
 
 % legend({'VFI','MD'})
 
-%% Stage
-inds = G.MD_30_2>=-6;
+
+%% Stage 1
+inds = G.MD_30_2>=-6; 
 x = G.CSFI_rate(inds);
 y = G.VFI_rate(inds);
 
@@ -266,7 +285,162 @@ corrcoef(x,y)
 return
 % SO 2017/1/25
 
-%% CSFI vs VFI
+
+%% stage 2
+inds = G.MD_30_2<-6 & G.MD_30_2>=-12 ; 
+
+x = G.CSFI_rate(inds);
+y = G.VFI_rate(inds);
+
+figure;hold on;
+plot(x,y,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
+xlabel CSFI
+ylabel VFI
+
+title Middle
+lsline
+
+mdl = fitlm(x,y)
+
+[h,p] = corr(x, y)
+
+% MD
+x = G.CSFI_rate(inds);
+y = G.MD_30_2(inds);
+
+figure;hold on;
+plot(x,y,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
+xlabel CSFI
+ylabel MD
+
+title Middle
+lsline
+
+mdl = fitlm(x,y)
+
+[h,p] = corr(x, y)
+
+%% stage 3
+inds = G.MD_30_2<-12 ; 
+
+x = G.CSFI_rate(inds);
+y = G.VFI_rate(inds);
+
+figure;hold on;
+plot(x,y,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
+xlabel CSFI
+ylabel VFI
+
+title Advance
+lsline
+
+mdl = fitlm(x,y)
+
+[h,p] = corr(x, y)
+
+% MD
+x = G.CSFI_rate(inds);
+y = G.MD_30_2(inds);
+
+figure;hold on;
+plot(x,y,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
+xlabel CSFI
+ylabel MD
+
+title Advance
+lsline
+
+mdl = fitlm(x,y)
+
+[h,p] = corr(x, y)
+
+
+%% fit 2d VFI
+x = G.CSFI_rate(inds);
+y = G.VFI_rate(inds);
+
+[p,ErrorEst] = polyfit(x, y,2);
+y_fit = polyval(p,x,ErrorEst);
+
+figure; hold on;
+% each subject
+plot(x,y,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
+
+% fit 
+plot(x,y_fit,'.');
+
+
+% figure;hold on;
+% plot(G.CSFI_rate(inds), G.VFI_rate(inds),'o',t2,y2)
+xlabel 'CSFI %'
+ylabel VFI
+
+% % figure; hold on;
+% res = y - y_fit;
+% plot(x,res,'o')
+
+% 
+[y_fit,delta] = polyval(p,x,ErrorEst);
+
+% figure; hold on;
+% 
+% plot(x,y,'o')
+% plot(x,y_fit,'g.')
+
+% 95% tile
+plot(x,y_fit+2*delta,'g.',...
+     x,y_fit-2*delta,'g.');
+
+corrcoef(x,y)
+ 
+[h,p] = corr(G.CSFI_rate(inds), G.VFI_rate(inds))
+
+
+%% fit 2d MD
+x = G.CSFI_rate(inds);
+y = G.MD_30_2(inds);
+
+[p,ErrorEst] = polyfit(x, y,2);
+y_fit = polyval(p,x,ErrorEst);
+
+figure; hold on;
+% each subject
+plot(x,y,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
+
+% fit 
+plot(x,y_fit,'.');
+
+
+% figure;hold on;
+% plot(G.CSFI_rate(inds), G.VFI_rate(inds),'o',t2,y2)
+xlabel 'CSFI %'
+ylabel MD
+
+% % figure; hold on;
+% res = y - y_fit;
+% plot(x,res,'o')
+
+% 
+[y_fit,delta] = polyval(p,x,ErrorEst);
+
+% figure; hold on;
+% 
+% plot(x,y,'o')
+% plot(x,y_fit,'g.')
+
+% 95% tile
+plot(x,y_fit+2*delta,'g.',...
+     x,y_fit-2*delta,'g.');
+
+corrcoef(x,y)
+ 
+[h,p] = corr(G.CSFI_rate(inds), G.VFI_rate(inds))
+
+
+
+
+
+%% CSFI vs VFI 
 % plot(C.CSFI_rate,C.VFI_rate,'o')
 % plot(N.CSFI_rate,N.VFI_rate,'o')
 % plot(P.CSFI_rate,P.VFI_rate,'o')

@@ -160,9 +160,9 @@ for kk = [8,11,17]
     end
 end
 
-    saveas(gca,'3elements','png')
-    saveas(gca,'3elements','fig')
-    saveas(gca,'3elements','eps2')
+    saveas(gca,'3el','png')
+    saveas(gca,Y{kk},'fig')
+    saveas(gca,Y{kk},'eps2')
 
 %% VFI_rate vs MD
 figure; hold on;

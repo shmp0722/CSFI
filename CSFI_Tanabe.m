@@ -9,7 +9,7 @@ P = readtable('POAG.csv');
 G = readtable('Glc.csv');
 %% Age
 figure; hold on;
-c = jet(4);
+c = jet(20);
 
 box = nan(size(P.age));
 
@@ -17,7 +17,7 @@ box1 = box;
 box2 = box;
 
 box1(1:length(C.age))  = C.age;
-box2(1:length(N.age)) = N.age; 
+box2(1:length(N.age)) = N.age;
 
 boxplot([box1,box2, P.age])
 hold off
@@ -71,6 +71,15 @@ ylabel 'MD'
 
 legend({'MD'})
 
+%% CSFIvs MD
+figure; hold on;
+plot(G.CSFI_rate,G.MD_30_2,'o','color',[0 0 0],'MarkerFaceColor',c(2,:))
+
+xlabel 'CSFI %'
+ylabel 'MD'
+
+legend({'MD'})
+
 %%
 [h, p] =corr(G.CSFI_rate,G.VFI_rate)
 
@@ -79,7 +88,39 @@ legend({'MD'})
 
 [h, p] =corr(G.VFI_rate,G.MD_30_2)
 
+%%
+Y = fieldnames(G);
+G.Axial_length =cell2mat(G.Axial_length);
+% for kk= 1:length(Y)
+for kk = [8,11,16,17,20,25]
+    try
+    figure;hold on;
+    G.(Y{kk})(G.(Y{kk})==0)=nan;
+    plot(G.CSFI_rate,G.(Y{kk}),'o','color',[0 0 0],'MarkerFaceColor',c(kk,:))
+    
+    xlabel 'CSFI %'
+    ylabel(Y{kk})
+    catch
+    end
+end
 
+%%
+% legend({'MD'})
+figure;hold on;
+for kk = [8,11,17]
+    try
+    G.(Y{kk})(G.(Y{kk})==0)=nan;
+%     plot(G.CSFI_rate,G.(Y{kk}),'o','color',[0 0 0],'MarkerFaceColor',c(kk,:))
+    
+    plot(G.CSFI_rate,G.(Y{kk}),'o','color','none','MarkerFaceColor',c(kk,:))
+
+    
+    xlabel 'CSFI %'
+    ylabel(Y{kk})
+    legend({Y{8},Y{11},Y{17}})
+    catch
+    end
+end
 %% VFI_rate vs MD
 figure; hold on;
 c =lines(4);
@@ -91,25 +132,25 @@ plot(G.MD_30_2,G.VFI_rate,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
 xlabel 'MD'
 ylabel 'VFI'
 
-% 
-lsline 
+%
+lsline
 
 mdl = fitlm(G.MD_30_2,G.VFI_rate)
 
-% ANOVA の表を分解し、モデル項を抽出
+% ANOVA ??????????????????????????????????????????
 anova(mdl,'summary')
 
-% 係数の信頼区間
+% ?????????????????????
 coefCI(mdl)
 
-% 係数に対する仮説検定
+% ??????????????????????????????
 
 [p,F,d] = coefTest(mdl)
 
 % legend({'VFI','MD'})
 
 %% Stage
-inds = G.MD_30_2>=-6; 
+inds = G.MD_30_2>=-6;
 x = G.CSFI_rate(inds);
 y = G.VFI_rate(inds);
 
@@ -152,7 +193,7 @@ figure; hold on;
 % each subject
 plot(x,y,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
 
-% fit 
+% fit
 plot(x,y_fit,'.');
 
 
@@ -165,20 +206,20 @@ ylabel VFI
 % res = y - y_fit;
 % plot(x,res,'o')
 
-% 
+%
 [y_fit,delta] = polyval(p,x,ErrorEst);
 
 % figure; hold on;
-% 
+%
 % plot(x,y,'o')
 % plot(x,y_fit,'g.')
 
 % 95% tile
 plot(x,y_fit+2*delta,'g.',...
-     x,y_fit-2*delta,'g.');
+    x,y_fit-2*delta,'g.');
 
 corrcoef(x,y)
- 
+
 [h,p] = corr(G.CSFI_rate(inds), G.VFI_rate(inds))
 
 
@@ -193,7 +234,7 @@ figure; hold on;
 % each subject
 plot(x,y,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
 
-% fit 
+% fit
 plot(x,y_fit,'.');
 
 
@@ -206,26 +247,26 @@ ylabel MD
 % res = y - y_fit;
 % plot(x,res,'o')
 
-% 
+%
 [y_fit,delta] = polyval(p,x,ErrorEst);
 
 % figure; hold on;
-% 
+%
 % plot(x,y,'o')
 % plot(x,y_fit,'g.')
 
 % 95% tile
 plot(x,y_fit+2*delta,'g.',...
-     x,y_fit-2*delta,'g.');
+    x,y_fit-2*delta,'g.');
 
 corrcoef(x,y)
- 
+
 [h,p] = corr(G.CSFI_rate(inds), G.VFI_rate(inds))
 
 return
 % SO 2017/1/25
 
-%% CSFI vs VFI 
+%% CSFI vs VFI
 % plot(C.CSFI_rate,C.VFI_rate,'o')
 % plot(N.CSFI_rate,N.VFI_rate,'o')
 % plot(P.CSFI_rate,P.VFI_rate,'o')
@@ -260,12 +301,12 @@ ylabel 'VFI %'
 legend({'NTG','POAG'})
 
 
-%% CSFI は3群で差があるか？
+%% CSFI ???3????????????????????????
 [h,p] = ttest2(C.CSFI_rate,N.CSFI_rate) % S
 [h,p] = ttest2(C.CSFI_rate,P.CSFI_rate) % S
 [h,p] = ttest2(N.CSFI_rate,P.CSFI_rate) % N.S.
 
-% NTGとPOAGには差がない。
+% NTG???POAG?????????????????????
 
 %%
 [h,p] = corr(C.age,C.CSFI_rate) % n.s
@@ -285,17 +326,17 @@ ylabel 'MD'
 
 legend({'Healthy','NTG','POAG'})
 
-%% MD_24_2 は3群で差があるか？
+%% MD_24_2 ???3????????????????????????
 [h,p] = ttest2(C.MD_24_2,N.MD_24_2) % S
 [h,p] = ttest2(C.MD_24_2,P.MD_24_2) % S
 [h,p] = ttest2(N.MD_24_2,P.MD_24_2) % S P= 0.008
 
-% 3群間で差があり。
+% 3????????????????????????
 
 %%
 
 
-% load data 
+% load data
 G = readtable('Glc.csv');
 
 
@@ -309,7 +350,7 @@ c = jet(4);
 xlabel 'CSFI %'
 ylabel 'VFI %'
 
-% fit 2d 
+% fit 2d
 p = polyfit(G.CSFI_rate,G.VFI_rate,2);
 
 t2 = -0:1:100;
@@ -327,7 +368,7 @@ ylabel VFI
 figure; hold on;
 c = jet(4);
 
-% fit 2d 
+% fit 2d
 p = polyfit(G.CSFI_rate,G.MD_24_2,2);
 
 t2 = 0:1:100;

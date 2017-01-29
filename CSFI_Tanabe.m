@@ -142,6 +142,10 @@ plot(G.CSFI_rate(~inds),G.AL(~inds),'o','color',[0 0 0],'MarkerFaceColor',c(kk,:
 set(gca,'YLim',[21 30])
 
 
+[h, p] =corr(G.CSFI_rate(~inds),G.AL(~inds))
+
+mdl = fitlm(G.CSFI_rate(~inds),G.AL(~inds))
+
 %%
 % legend({'MD'})
 figure;hold on;
@@ -163,7 +167,28 @@ end
     saveas(gca,'3elements','png')
     saveas(gca,'3elements','fig')
     saveas(gca,'3elements','eps2')
+%% cpRNFL vs CSFI
+figure; hold on;
+x = G.CSFI_rate; y = G.cpRNFL;
+plot(x, y,'o')
+xlabel 'CSFI %'
+ylabel 'cpRNFL'
 
+%% cpRNFL vs MD
+figure; hold on;
+x = G.MD_30_2; y = G.cpRNFL;
+plot(x, y,'o')
+xlabel 'MD'
+ylabel 'cpRNFL'
+
+%% cpRNFL vs MD
+figure; hold on;
+x = G.VFI_rate; y = G.cpRNFL;
+plot(x, y,'o')
+xlabel 'VFI'
+ylabel 'cpRNFL'
+    
+    
 %% VFI_rate vs MD
 figure; hold on;
 c =lines(4);

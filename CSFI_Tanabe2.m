@@ -1,6 +1,18 @@
 % load data 
-G = readtable('Glc.csv');
+% G = readtable('Glc.csv');
 
+T = readtable('Latest20170208.xlsx');
+
+
+TF = ismissing(T, {'','.','NA' NaN -99});
+T(any(TF,2),:)
+
+T = standardizeMissing(T,-99);
+
+
+%% take complete data
+TF = ismissing(T);
+T2 = T(~any(TF,2),:);
 
 %% MD vs VFI
 

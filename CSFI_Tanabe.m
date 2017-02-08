@@ -513,3 +513,71 @@ ylabel 'MD'
 
 
 [h,p] = corr(G.CSFI_rate,G.MD_24_2)
+
+
+%% additional 3
+c = jet(15);
+
+for Min = -12:3:30;
+    figure;
+    inds =G.MD_30_2<=Min+3  & G.MD_30_2>Min ;
+    
+    x = G.CSFI_rate(inds);
+    y = G.VFI_rate(inds);
+    
+    figure;hold on;
+    plot(x,y,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
+    xlabel CSFI
+    ylabel VFI
+    
+    title(sprintf('%d-%d',Min,Min+3))
+    lsline
+    
+%     mdl = fitlm(x,y)
+    
+    [h,p] = corr(x, y)
+    
+    legend(sprintf('r = %d',h))
+end
+
+%% additional 3
+c = jet(15);
+
+for Min = -30:3:3;
+    figure;
+    inds =G.MD_30_2<=Min+3  & G.MD_30_2>Min ;
+    
+    x = G.CSFI_rate(inds);
+    y = G.MD_30_2(inds);
+    
+    figure;hold on;
+    plot(x,y,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
+    xlabel CSFI
+    ylabel MD
+    
+    title(sprintf('%d-%d',Min,Min+3))
+    lsline
+    
+%     mdl = fitlm(x,y)
+    
+    [h,p] = corr(x, y)
+    
+    legend(sprintf('r = %d',h))
+end
+
+%%
+% MD
+x = G.CSFI_rate(inds);
+y = G.MD_30_2(inds);
+
+figure;hold on;
+plot(x,y,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
+xlabel CSFI
+ylabel MD
+
+title Advance
+lsline
+
+mdl = fitlm(x,y)
+
+[h,p] = corr(x, y)

@@ -237,6 +237,7 @@ axis auto
 %% staging
 inds = T2.MD30_2>-6; 
 
+
 x = T2.CSFI(inds);
 y = T2.MD30_2(inds);
 
@@ -254,14 +255,15 @@ title Early
 
 
 % VFI
-y = T2.VFI(inds);
+x = G.CSFI_rate(inds);
+y = G.MD_30_2(inds);
 
 figure;hold on;
-plot(x,y,'o','color',[0 0 0])%,'MarkerFaceColor',c(1,:))
+plot(x,y,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
 xlabel CSFI
-ylabel VFI
+ylabel MD
 
-title Early
+title Advance
 lsline
 
 mdl = fitlm(x,y)
@@ -272,75 +274,12 @@ mdl = fitlm(x,y)
 %% stage 2
 inds = T2.MD30_2<-6 & T2.MD30_2>=-12 ; 
 
-x = T2.CSFI(inds);
-y = T2.MD30_2(inds);
-
-figure;hold on;
-plot(x,y,'o','color',[0 0 0])%,'MarkerFaceColor',c(1,:))
-xlabel CSFI
-ylabel MD
-
-lsline
-
-mdl = fitlm(x,y)
-
-[h,p] = corr(x, y)
-title Middle
-
-
-% VFI
-y = T2.VFI(inds);
-
-figure;hold on;
-plot(x,y,'o','color',[0 0 0])%,'MarkerFaceColor',c(1,:))
-xlabel CSFI
-ylabel VFI
-
-title Middle
-lsline
-
-mdl = fitlm(x,y)
-
-[h,p] = corr(x, y)
-
-%% stage 3
-inds = T2.MD30_2<-12 ; 
-
-x = T2.CSFI(inds);
-y = T2.MD30_2(inds);
-
-figure;hold on;
-plot(x,y,'o','color',[0 0 0])%,'MarkerFaceColor',c(1,:))
-xlabel CSFI
-ylabel MD
-
-lsline
-
-mdl = fitlm(x,y)
-
-[h,p] = corr(x, y)
-title Advance
-
-
-% VFI
-y = T2.VFI(inds);
-
-figure;hold on;
-plot(x,y,'o','color',[0 0 0])%,'MarkerFaceColor',c(1,:))
-xlabel CSFI
-ylabel VFI
-
-title Advance
-lsline
-
-mdl = fitlm(x,y)
-
-[h,p] = corr(x, y)
 
 
 
 
-%%
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

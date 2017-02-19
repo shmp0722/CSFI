@@ -4,14 +4,16 @@
 T = readtable('Latest20170208.xlsx');
 
 %% remove subjects HFA reliability is low
-rows =  T.FP< .2 & T.FN<.33 & T.FixLoss_pcnt<.2;
+rows =  T.FP< .15 & T.FN<.33 & T.FixLoss_pcnt<.2;
+% rows =  T.FP< .15 & T.FixLoss_pcnt<.2;
+
 
 T2 = T(rows,:);
 
 figure; hold on;
 subplot(1,2,1)
 plot(T2.CSFI,T2.MD30_2,'*r') % n = 575
-title 'Good HFA n =575 '  
+title 'Good HFA n =572 '  
 xlabel CSFI
 ylabel MD30-2
 
@@ -40,7 +42,7 @@ for n = 1: length(T2.Type);
 end
 NTG  =  T2(rows,:);
 
-%%
+%% summary and difference
 
 mean(NTG.age)
 nanstd(NTG.age)
@@ -58,8 +60,6 @@ mean(POAG.VFI)
 std(NTG.VFI)
 
 p = ranksum(POAG.VFI,NTG.VFI)
-
-
 
 % same as Man-U test
 p = ranksum(POAG.age,NTG.age)
@@ -111,12 +111,7 @@ h = ezcontour(@(x,y)pdf(obj{k},[x y]));
 axis auto
 end
 
-
-% %%
-% varfun(@mean,T,'InputVariables','CSFI',...
-%     'GroupingVariables','Type')
-
-
+AIC
 %% Fix_loss effect something on CSFI
 Var = fieldnames(T2);
 
@@ -137,30 +132,30 @@ end
 % plot(T.FixLoss_pcnt*100,T.(12),'o')
 
 
-%% CSFI vs MD ?? Why??
-figure; hold on;
-c = jet(4);
-
-plot(T2.CSFI,T2.MD30_2,'o')
-xlabel 'CSFI %'
-ylabel 'MD 30-2'
-
-% fit model
-for jj = 1:4 
-[p,s, mu] = polyfit(T2.CSFI,T2.MD30_2,jj);
-t2 = linspace(-0.4,1);
-y2 = polyval(p,t2);
-
-% figure;hold on;
-% plot(T2.CSFI,T2.MD30_2,'o',t2,y2)%,'color',c(jj,:))
-plot(t2,y2)%,'color',c(jj,:))
-
-% lsline
-xlabel 'CSFI %'
-ylabel VFI
-end
-% legend({'1','2','3','4'})
-clear p s
+% %% CSFI vs MD ?? Why??
+% figure; hold on;
+% c = jet(4);
+% 
+% plot(T2.CSFI,T2.MD30_2,'o')
+% xlabel 'CSFI %'
+% ylabel 'MD 30-2'
+% 
+% % fit model
+% for jj = 1:4 
+% [p,s, mu] = polyfit(T2.CSFI,T2.MD30_2,jj);
+% t2 = linspace(-0.4,1);
+% y2 = polyval(p,t2);
+% 
+% % figure;hold on;
+% % plot(T2.CSFI,T2.MD30_2,'o',t2,y2)%,'color',c(jj,:))
+% plot(t2,y2)%,'color',c(jj,:))
+% 
+% % lsline
+% xlabel 'CSFI %'
+% ylabel VFI
+% end
+% % legend({'1','2','3','4'})
+% clear p s
 %% AIC MD!?
 figure; hold on;
 scatter(T2.CSFI,T2.MD30_2,10,'*')
@@ -173,7 +168,7 @@ for k = 1:4
 end
 
 % h = ezcontour(@(x,y)pdf(obj{1},[x y]));
-
+AIC
 
 
 %% Fitting exponential did not fit 
@@ -186,7 +181,7 @@ plot(T2.CSFI,T2.VFI, '*')
 [sse, FittedCurve] = model(estimates);
 plot(T2.CSFI, FittedCurve, 'r')
  
-xlabel('T2.CSFI')
+xlabel('CSFI')
 ylabel('f(estimates,T2.CSFI)')
 title(['Fitting to function ', func2str(model)]);
 legend('data', ['fit using ', func2str(model)])
@@ -197,30 +192,103 @@ hold off
 [h,p] = corr(T2.CSFI,T2.VFI)
 [h,p] = corr(T2.CSFI,T2.MD30_2)
 
-%% CSFI vs MD30-2
 
+%% CSFI vs MD30-2
+% fit model
+for jj = 1:4
 figure; hold on;
 c = lines(4);
 plot(T2.CSFI,T2.MD30_2,'*b')
-
-
-% fit model
-for jj = 1:4
-p = polyfit(T2.CSFI,T2.MD30_2,jj);
+[p,ErrorEst] = polyfit(T2.CSFI,T2.MD30_2,jj);
 
 t2 = linspace(-0.4,1);
-y2 = polyval(p,t2);
+[y2,delta] = polyval(p,t2,ErrorEst);
 
+% 95% c.i.
 plot(t2,y2,'color',c(jj,:))
+plot(t2,y2+2*delta,'r:')
+plot(t2,y2-2*delta,'r:')
 
 xlabel 'CSFI %'
 ylabel MD
+title(sprintf('FIT %d function with CI',jj))
+hold off;
 end
-legend({'','2d','3d','4d'})
 
-%% AIC VFI
+%% lowess
+figure; hold on;
+yy2 = smooth(T2.CSFI,T2.MD30_2,0.3,'rloess');
+% plot(yy2)
+[xx,ind] = sort(T2.CSFI);
+plot(xx,T2.MD30_2(ind),'b.',xx,yy2(ind),'r-')
+xlabel 'CSFI %'
+ylabel MD
+% legend({'POAG','2d','3d','4d'}
+
+figure;
+yy3 = smooth(T2.cpRNFL,T2.MD30_2,0.4,'rloess');
+[xx,ind] = sort(T2.cpRNFL);
+plot(T2.cpRNFL,T2.MD30_2,'b.',xx,yy3(ind),'r-')
+xlabel 'cpRNFL'
+ylabel MD
+%% AIC MD
 figure; hold on;
 scatter(T2.CSFI,T2.MD30_2,10,'*')
+
+AIC = zeros(1,4);
+obj = cell(1,4);
+for k = 1:4
+    obj{k} = gmdistribution.fit([T2.CSFI,T2.MD30_2],k);
+    AIC(k)= obj{k}.AIC;
+end
+AIC
+min(AIC)
+
+h = ezcontour(@(x,y)pdf(obj{4},[x y]));
+axis auto
+
+
+%% CSFI vs VFI
+% fit model
+for jj = 1:4
+figure; hold on;
+c = lines(4);
+plot(T2.CSFI,T2.VFI,'*b')
+[p,ErrorEst] = polyfit(T2.CSFI,T2.VFI,jj);
+
+t2 = linspace(-0.4,1);
+[y2,delta] = polyval(p,t2,ErrorEst);
+
+% 95% c.i.
+plot(t2,y2,'color',c(jj,:))
+plot(t2,y2+2*delta,'r:')
+plot(t2,y2-2*delta,'r:')
+
+xlabel CSFI
+ylabel VFI
+title(sprintf('FIT %d function with CI',jj))
+hold off;
+end
+
+%% lowess
+figure; hold on;
+yy2 = smooth(T2.CSFI,T2.VFI,0.3,'rloess');
+% plot(yy2)
+[xx,ind] = sort(T2.CSFI);
+plot(xx,T2.VFI(ind),'b.',xx,yy2(ind),'r-')
+xlabel 'CSFI %'
+ylabel VFI
+% legend({'POAG','2d','3d','4d'}
+
+figure;
+yy3 = smooth(T2.cpRNFL,T2.VFI,0.4,'rloess');
+[xx,ind] = sort(T2.cpRNFL);
+plot(T2.cpRNFL,T2.VFI,'b.',xx,yy3(ind),'r-')
+xlabel 'cpRNFL'
+ylabel VFI
+%% AIC VFI
+figure; hold on;
+scatter(T2.CSFI,T2.VFI,10,'*')
 
 AIC = zeros(1,4);
 obj = cell(1,4);
@@ -228,7 +296,7 @@ for k = 1:4
     obj{k} = gmdistribution.fit([T2.CSFI,T2.VFI],k);
     AIC(k)= obj{k}.AIC;
 end
-
+AIC
 min(AIC)
 
 h = ezcontour(@(x,y)pdf(obj{4},[x y]));
@@ -340,7 +408,65 @@ mdl = fitlm(x,y)
 
 
 
+%% lmfit
+
+
+tbl = table(T2.CSFI,T2.age,T2.AL,T2.cpRNFL,T2.FixLoss_pcnt,T2.Gender,T2.VFI,T2.MD30_2,...
+    'VariableNames',{'CSFI','age','AL','cpRNFL','Fix_Loss','Gender','VFI','MD'})
+
+lm = fitlm(tbl,'CSFI ~ 1 + VFI + age + cpRNFL')
+
+lm = fitlm(tbl,'CSFI ~ 1 + MD + age + cpRNFL')
+
+%% staging
+inds = T2.MD30_2>-6; 
+Early = T2(inds,:);
+
+inds = T2.MD30_2<-6 & T2.MD30_2>=-12 ; 
+Middle = T2(inds,:);
+
+inds = T2.MD30_2<-12 ; 
+End  = T2(inds,:);
+
+%% Early
+tbl = table(Early.CSFI,Early.age,Early.AL,Early.cpRNFL,Early.FixLoss_pcnt,...
+    Early.Gender,Early.VFI,Early.MD30_2,...
+    'VariableNames',{'CSFI','age','AL','cpRNFL','Fix_Loss','Gender','VFI','MD'});
+
+lm = fitlm(tbl,'CSFI ~ 1 + VFI + age + cpRNFL')
+anova(lm,'summary')
+
+lm = fitlm(tbl,'CSFI ~ 1 + MD + age + cpRNFL')
+
+%% Early
+tbl = table(Early.CSFI,Early.age,Early.AL,Early.cpRNFL,Early.FixLoss_pcnt,...
+    Early.Gender,Early.VFI,Early.MD30_2,...
+    'VariableNames',{'CSFI','age','AL','cpRNFL','Fix_Loss','Gender','VFI','MD'});
+
+lm = fitlm(tbl,'CSFI ~ 1 + VFI + age + cpRNFL')
+lm = fitlm(tbl,'CSFI ~ 1 + MD + age + cpRNFL')
+
+
+%% Middle
+tbl = table(Middle.CSFI,Middle.age,Middle.AL,Middle.cpRNFL,Middle.FixLoss_pcnt,...
+    Middle.Gender,Middle.VFI,Middle.MD30_2,...
+    'VariableNames',{'CSFI','age','AL','cpRNFL','Fix_Loss','Gender','VFI','MD'});
+
+lm = fitlm(tbl,'CSFI ~ 1 + VFI + age + cpRNFL')
+lm = fitlm(tbl,'CSFI ~ 1 + MD + age + cpRNFL')
+
+%% End
+tbl = table(End.CSFI,End.age,End.AL,End.cpRNFL,End.FixLoss_pcnt,...
+    End.Gender,End.VFI,End.MD30_2,...
+    'VariableNames',{'CSFI','age','AL','cpRNFL','Fix_Loss','Gender','VFI','MD'});
+
+lm = fitlm(tbl,'CSFI ~ 1 + VFI + age + cpRNFL')
+lm = fitlm(tbl,'CSFI ~ 1 + MD + age + cpRNFL')
+
 %%
+
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

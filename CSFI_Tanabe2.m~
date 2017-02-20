@@ -434,41 +434,49 @@ mdl = fitlm(x,y)
 
 %% stage 3
 inds = T2.MD30_2<-12 ; 
-ninds = NTG.MD30_2<-12 ; 
-pinds = POAG.MD30_2<-12 ; 
+ninds = NTG.MD30_2<_2>=-12 ; 
+pinds = POAG.MD30_2<-6 & POAG.MD30_2>=-12 ; 
 
-% MD
+
+
+
+x = T2.CSFI(inds);
+y = T2.MD30_2(inds);
+
 figure;hold on;
-
-plot(NTG.CSFI(ninds), NTG.MD30_2(ninds),'*r')
-plot(POAG.CSFI(pinds),POAG.MD30_2(pinds),'*b')
-
+plot(x,y,'o','color',[0 0 0])%,'MarkerFaceColor',c(1,:))
 xlabel CSFI
 ylabel MD
-title Advanced
-legend({'NTG','POAG'})
 
-
-% VFI
-% VFI
-y = T2.VFI(inds);
-
-figure; hold on;
-plot(NTG.CSFI(ninds), NTG.VFI(ninds),'*r')
-plot(POAG.CSFI(pinds),POAG.VFI(pinds),'*b')
-
-xlabel CSFI
-ylabel VFI
-title Advanced
-legend({'NTG','POAG'})
+lsline
 
 mdl = fitlm(x,y)
 
-[h,p] = corrcoef(x, y)
+[h,p] = corr(x, y)
+title Advance
+
+
+% VFI
+y = T2.VFI(inds);
+
+figure;hold on;
+plot(x,y,'o','color',[0 0 0])%,'MarkerFaceColor',c(1,:))
+xlabel CSFI
+ylabel VFI
+
+title Advance
+lsline
+
+mdl = fitlm(x,y)
+
+[h,p] = corr(x, y)
+
 
 
 
 %% lmfit
+
+
 tbl = table(T2.CSFI,T2.age,T2.AL,T2.cpRNFL,T2.FixLoss_pcnt,T2.Gender,T2.VFI,T2.MD30_2,...
     'VariableNames',{'CSFI','age','AL','cpRNFL','Fix_Loss','Gender','VFI','MD'})
 
@@ -492,9 +500,18 @@ tbl = table(Early.CSFI,Early.age,Early.AL,Early.cpRNFL,Early.FixLoss_pcnt,...
     'VariableNames',{'CSFI','age','AL','cpRNFL','Fix_Loss','Gender','VFI','MD'});
 
 lm = fitlm(tbl,'CSFI ~ 1 + VFI + age + cpRNFL')
-% anova(lm,'summary')
+anova(lm,'summary')
 
 lm = fitlm(tbl,'CSFI ~ 1 + MD + age + cpRNFL')
+
+%% Early
+tbl = table(Early.CSFI,Early.age,Early.AL,Early.cpRNFL,Early.FixLoss_pcnt,...
+    Early.Gender,Early.VFI,Early.MD30_2,...
+    'VariableNames',{'CSFI','age','AL','cpRNFL','Fix_Loss','Gender','VFI','MD'});
+
+lm = fitlm(tbl,'CSFI ~ 1 + VFI + age + cpRNFL')
+lm = fitlm(tbl,'CSFI ~ 1 + MD + age + cpRNFL')
+
 
 %% Middle
 tbl = table(Middle.CSFI,Middle.age,Middle.AL,Middle.cpRNFL,Middle.FixLoss_pcnt,...
@@ -504,7 +521,7 @@ tbl = table(Middle.CSFI,Middle.age,Middle.AL,Middle.cpRNFL,Middle.FixLoss_pcnt,.
 lm = fitlm(tbl,'CSFI ~ 1 + VFI + age + cpRNFL')
 lm = fitlm(tbl,'CSFI ~ 1 + MD + age + cpRNFL')
 
-%% Advanced
+%% End
 tbl = table(End.CSFI,End.age,End.AL,End.cpRNFL,End.FixLoss_pcnt,...
     End.Gender,End.VFI,End.MD30_2,...
     'VariableNames',{'CSFI','age','AL','cpRNFL','Fix_Loss','Gender','VFI','MD'});

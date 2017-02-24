@@ -134,33 +134,7 @@ for ii= 8:length(Var)-1
     end
 end
 
-% plot(T.FixLoss_pcnt*100,T.(12),'o')
 
-
-% %% CSFI vs MD ?? Why??
-% figure; hold on;
-% c = jet(4);
-% 
-% plot(T2.CSFI,T2.MD30_2,'o')
-% xlabel 'CSFI %'
-% ylabel 'MD 30-2'
-% 
-% % fit model
-% for jj = 1:4 
-% [p,s, mu] = polyfit(T2.CSFI,T2.MD30_2,jj);
-% t2 = linspace(-0.4,1);
-% y2 = polyval(p,t2);
-% 
-% % figure;hold on;
-% % plot(T2.CSFI,T2.MD30_2,'o',t2,y2)%,'color',c(jj,:))
-% plot(t2,y2)%,'color',c(jj,:))
-% 
-% % lsline
-% xlabel 'CSFI %'
-% ylabel VFI
-% end
-% % legend({'1','2','3','4'})
-% clear p s
 %% AIC MD!?
 figure; hold on;
 scatter(T2.CSFI,T2.MD30_2,10,'*')
@@ -177,10 +151,13 @@ for k = 1:n
     AIC(k)= obj{k}.AIC;
 end
 
+% AIC
 figure; hold on;
 plot(AIC,'r.')
 line([0 10],[min(AIC),min(AIC)])
-title AIC
+title CSFI vs MD
+ylabel AIC
+xlabel n o function
 hold off
 % h = ezcontour(@(x,y)pdf(obj{1},[x y]));
 
@@ -203,9 +180,9 @@ legend('data', ['fit using ', func2str(model)])
 hold off
 
 
-%%
-[h,p] = corr(T2.CSFI,T2.VFI)
-[h,p] = corr(T2.CSFI,T2.MD30_2)
+%% Just correlation 
+[h,p] = corrcoef(T2.CSFI,T2.VFI)
+[h,p] = corrcoef(T2.CSFI,T2.MD30_2)
 
 
 %% CSFI vs MD30-2
@@ -320,35 +297,17 @@ yy3 = smooth(T2.cpRNFL,T2.VFI,0.4,'rloess');
 plot(T2.cpRNFL,T2.VFI,'b.',xx,yy3(ind),'r-')
 xlabel 'cpRNFL'
 ylabel VFI
-% %% AIC VFI
-% figure; hold on;
-% scatter(T2.CSFI,T2.VFI,10,'*')
-% 
-% AIC = zeros(1,4);
-% obj = cell(1,4);
-% for k = 1:4
-%     obj{k} = gmdistribution.fit([T2.CSFI,T2.VFI],k);
-%     AIC(k)= obj{k}.AIC;
-% end
-% AIC
-% min(AIC)
-% 
-% h = ezcontour(@(x,y)pdf(obj{4},[x y]));
-% axis auto
-% 
+
+ 
 %% staging
 inds = T2.MD30_2>-6; 
 ninds = NTG.MD30_2>-6;
 pinds = POAG.MD30_2>-6;
 
+% MD vs CSFI
 figure;hold on;
-
 plot(NTG.CSFI(ninds), NTG.MD30_2(ninds),'*r')
 plot(POAG.CSFI(pinds),POAG.MD30_2(pinds),'*b')
-
-
-% plot(x,y,'o','color',[0 0 0])%,'MarkerFaceColor',c(1,:))
-% plot(x,y,'*b')%,'MarkerFaceColor',c(1,:))
 
 xlabel CSFI
 ylabel MD
@@ -360,12 +319,9 @@ x = T2.CSFI(inds);
 y = T2.MD30_2(inds);
 mdl = fitlm(x,y)
 [h,p] = corrcoef(x, y)
-% title Early
 
 
-% VFI
-
-
+% VFI vs CSFI
 figure;hold on;
 % plot(x,y,'o','color',[0 0 0])%,'MarkerFaceColor',c(1,:))
 plot(NTG.CSFI(ninds), NTG.VFI(ninds),'*r')
@@ -383,10 +339,162 @@ mdl = fitlm(x,y)
 
 [h,p] = corrcoef(x, y)
 
+% RGC vs CSFI
+figure;hold on;
+% plot(x,y,'o','color',[0 0 0])%,'MarkerFaceColor',c(1,:))
+plot(NTG.CSFI(ninds), NTG.RGC_OCT(ninds),'*r')
+plot(POAG.CSFI(pinds),POAG.RGC_OCT(pinds),'*b')
+xlabel CSFI
+ylabel RGC_OCT
+title Early
+legend({'NTG','POAG'})
+
+% title Early
+% lsline
+x = T2.CSFI(inds);
+y = T2.RGC_OCT(inds);
+mdl = fitlm(x,y)
+
+[h,p] = corrcoef(x, y)
+
+%% staging 1 subplot
+inds = T2.MD30_2>-6; 
+ninds = NTG.MD30_2>-6;
+pinds = POAG.MD30_2>-6;
+
+% lets see correlation between MD and others
+names = fieldnames(T2);
+
+% corr MD vs all
+for kk = 1:length(names)
+    try
+        [h,p] = corr(T2.MD30_2(inds),T2.(kk)(inds));
+        H(kk) = h;P(kk) = p;
+    catch
+        H(kk) = nan;P(kk) = nan; 
+    end
+end
+
+names(abs(P)<0.05)
+
+MD = table( names(abs(P)<0.05),H(abs(P)<0.05)',P(abs(P)<0.05)','VariableNames',{'variable','H','P'})
+
+% lets see correlation between VFI and others
+names = fieldnames(T2);
+
+% corr VFI vs all
+for kk = 1:length(names)
+    try
+        [h,p] = corr(T2.VFI(inds),T2.(kk)(inds));
+        H(kk) = h;P(kk) = p;
+    catch
+        H(kk) = nan;P(kk) = nan; 
+    end
+end
+
+names(abs(P)<0.05)
+
+VFI = table( names(abs(P)<0.05),H(abs(P)<0.05)',P(abs(P)<0.05)','VariableNames',{'variable','H','P'})
+
+
+
+% MD vs CSFI
+figure;hold on;
+subplot(1,3,1)
+plot(NTG.CSFI(ninds), NTG.MD30_2(ninds),'*r')
+plot(POAG.CSFI(pinds),POAG.MD30_2(pinds),'*b')
+
+xlabel CSFI
+ylabel MD
+title Early
+legend({'NTG','POAG'})
+
+% lsline
+x = T2.CSFI(inds);
+y = T2.MD30_2(inds);
+mdl = fitlm(x,y)
+[h,p] = corrcoef(x, y)
+text
+
+% VFI vs CSFI
+% figure;hold on;
+subplot(1,3,2)
+% plot(x,y,'o','color',[0 0 0])%,'MarkerFaceColor',c(1,:))
+plot(NTG.CSFI(ninds), NTG.VFI(ninds),'*r')
+plot(POAG.CSFI(pinds),POAG.VFI(pinds),'*b')
+xlabel CSFI
+ylabel VFI
+title Early
+legend({'NTG','POAG'})
+
+% title Early
+% lsline
+x = T2.CSFI(inds);
+y = T2.VFI(inds);
+mdl = fitlm(x,y)
+
+[h,p] = corrcoef(x, y)
+
+% RGC vs CSFI
+subplot(1,3,3)
+% plot(x,y,'o','color',[0 0 0])%,'MarkerFaceColor',c(1,:))
+plot(NTG.CSFI(ninds), NTG.RGC_OCT(ninds),'*r')
+plot(POAG.CSFI(pinds),POAG.RGC_OCT(pinds),'*b')
+xlabel CSFI
+ylabel 'RGC OCT'
+title Early
+legend({'NTG','POAG'})
+
+% title Early
+% lsline
+x = T2.CSFI(inds);
+y = T2.RGC_OCT(inds);
+mdl = fitlm(x,y)
+
+[h,p] = corrcoef(x, y)
+
+
 %% stage 2
 inds = T2.MD30_2<-6 & T2.MD30_2>=-12 ; 
 ninds = NTG.MD30_2<-6 & NTG.MD30_2>=-12 ; 
 pinds = POAG.MD30_2<-6 & POAG.MD30_2>=-12 ; 
+
+
+% lets see correlation between MD and others
+names = fieldnames(T2);
+
+% corr MD vs all
+for kk = 1:length(names)
+    try
+        [h,p] = corr(T2.MD30_2(inds),T2.(kk)(inds));
+        H(kk) = h;P(kk) = p;
+    catch
+        H(kk) = nan;P(kk) = nan; 
+    end
+end
+
+names(abs(P)<0.05)
+
+MD = table( names(abs(P)<0.05),H(abs(P)<0.05)',P(abs(P)<0.05)','VariableNames',{'variable','H','P'})
+
+% lets see correlation between VFI and others
+names = fieldnames(T2);
+
+% corr VFI vs all
+for kk = 1:length(names)
+    try
+        [h,p] = corr(T2.VFI(inds),T2.(kk)(inds));
+        H(kk) = h;P(kk) = p;
+    catch
+        H(kk) = nan;P(kk) = nan; 
+    end
+end
+
+names(abs(P)<0.05)
+
+VFI = table( names(abs(P)<0.05),H(abs(P)<0.05)',P(abs(P)<0.05)','VariableNames',{'variable','H','P'})
+
+%% continue
 
 figure;hold on;
 
@@ -419,14 +527,6 @@ xlabel CSFI
 ylabel VFI
 title Middle
 legend({'NTG','POAG'})
-
-% figure;hold on;
-% plot(x,y,'o','color',[0 0 0])%,'MarkerFaceColor',c(1,:))
-% xlabel CSFI
-% ylabel VFI
-% 
-% title Middle
-% lsline
 
 mdl = fitlm(x,y)
 
@@ -437,7 +537,43 @@ inds = T2.MD30_2<-12 ;
 ninds = NTG.MD30_2<-12 ; 
 pinds = POAG.MD30_2<-12 ; 
 
-% MD
+% lets see correlation between MD and others
+names = fieldnames(T2);
+
+% corr MD vs all
+for kk = 1:length(names)
+    try
+        [h,p] = corr(T2.MD30_2(inds),T2.(kk)(inds));
+        H(kk) = h;P(kk) = p;
+    catch
+        H(kk) = nan;P(kk) = nan; 
+    end
+end
+
+names(abs(P)<0.05)
+
+MD = table( names(abs(P)<0.05),H(abs(P)<0.05)',P(abs(P)<0.05)','VariableNames',{'variable','H','P'})
+
+% lets see correlation between VFI and others
+names = fieldnames(T2);
+
+% corr VFI vs all
+for kk = 1:length(names)
+    try
+        [h,p] = corr(T2.VFI(inds),T2.(kk)(inds));
+        H(kk) = h;P(kk) = p;
+    catch
+        H(kk) = nan;P(kk) = nan; 
+    end
+end
+
+names(abs(P)<0.05)
+
+VFI = table( names(abs(P)<0.05),H(abs(P)<0.05)',P(abs(P)<0.05)','VariableNames',{'variable','H','P'})
+
+
+
+%% MD
 figure;hold on;
 
 plot(NTG.CSFI(ninds), NTG.MD30_2(ninds),'*r')
@@ -468,9 +604,79 @@ mdl = fitlm(x,y)
 
 
 
-%% lmfit
+%% linear regression fit
+
+
+names = fieldnames(T2);
+
+% corr MD vs all
+for kk = 1:length(names)
+    try
+        [h,p] = corr(T2.MD30_2,T2.(kk));
+        H(kk) = h;P(kk) = p;
+    catch
+        H(kk) = nan;P(kk) = nan; 
+    end
+end
+
+names(abs(P)<0.05)
+
+MD = table( names(abs(P)<0.05),H(abs(P)<0.05)',P(abs(P)<0.05)','VariableNames',{'variable','H','P'});
+
+%% VFI
+% corr VFI vs all
+for kk = 1:length(names)
+    try
+        [h,p] = corr(T2.VFI,T2.(kk));
+        H(kk) = h;P(kk) = p;
+    catch
+        H(kk) = nan;P(kk) = nan; 
+    end
+end
+
+names(abs(P)<0.05)
+
+VFI = table( names(abs(P)<0.05),H(abs(P)<0.05)',P(abs(P)<0.05)','VariableNames',{'variable','H','P'});
+
+
+%% corr CSFI vs all
+for kk = 1:length(names)
+    try
+        [h,p] = corr(T2.CSFI,T2.(kk));
+        H(kk) = h;P(kk) = p;
+    catch
+        H(kk) = nan;P(kk) = nan; 
+    end
+end
+
+names(abs(P)<0.05)
+
+CSFI = table( names(abs(P)<0.05),H(abs(P)<0.05)',P(abs(P)<0.05)','VariableNames',{'variable','H','P'});
+
+
+
+%%
 tbl = table(T2.CSFI,T2.age,T2.AL,T2.cpRNFL,T2.FixLoss_pcnt,T2.Gender,T2.VFI,T2.MD30_2,...
-    'VariableNames',{'CSFI','age','AL','cpRNFL','Fix_Loss','Gender','VFI','MD'})
+    T2.RGC_HFA,T2.RGC_OCT,T2.SE,T2.wRGC,T2.AreaOD,...
+    'VariableNames',{'CSFI','age','AL','cpRNFL','Fix_Loss','Gender','VFI','MD'...
+    'RGC_HFA','RGC_OCT','SE','wRGC','AreaOD'});
+
+lm = fitlm(tbl)
+
+lm = fitlm(tbl,'MD ~ 1 + CSFI + age + cpRN')
+
+
+%%
+tbl = table(T2.CSFI,T2.age,T2.AL,T2.cpRNFL,T2.FixLoss_pcnt,T2.Gender,T2.VFI,T2.MD30_2,T2.AreaOD,...
+    'VariableNames',{'CSFI','age','AL','cpRNFL','Fix_Loss','Gender','VFI','MD','AreaOD'});
+
+lm = fitlm(tbl)
+
+lm = fitlm(tbl,'MD ~ 1 + CSFI + age + cpRNFL + Fix_Loss + Gender + VFI')
+
+lm = fitlm(tbl,'MD ~ 1 + CSFI + age + cpRNFL')
+
+%
 
 lm = fitlm(tbl,'CSFI ~ 1 + VFI + age + cpRNFL')
 
@@ -513,690 +719,4 @@ lm = fitlm(tbl,'CSFI ~ 1 + VFI + age + cpRNFL')
 lm = fitlm(tbl,'CSFI ~ 1 + MD + age + cpRNFL')
 
 %%
-
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%% Load whole data
-
-% T = readtable('CSFI_data.csv');
-C = readtable('Normal.csv');
-N = readtable('NTG.csv');
-P = readtable('POAG.csv');
-G = readtable('Glc.csv');
-%% Age
-figure; hold on;
-c = jet(100);
-
-box = nan(size(P.age));
-
-box1 = box;
-box2 = box;
-
-box1(1:length(C.age))  = C.age;
-box2(1:length(N.age)) = N.age;
-
-boxplot([box1,box2, P.age])
-hold off
-
-%% Age POAGvs NTG
-figure; hold on;
-boxplot(G.age,G.Type)
-hold off
-
-[p, h] = ranksum(N.age, P.age)
-
-[p, h] = ranksum(N.MD_30_2, P.MD_30_2)
-
-[p, h] = ranksum(N.VFI_rate, P.VFI_rate)
-
-
-nanmean(N.MD_30_2)
-nanmean(P.MD_30_2)
-
-nanmean(N.VFI_rate)
-nanmean(P.VFI_rate)
-
-%% Gender
-% NTG f 117: m 209
-% POAG 109:226
-
-
-%% CSFI vs VFI
-figure; hold on;
-c =lines(100);
-
-plot(G.CSFI_rate,G.VFI_rate,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
-xlabel 'CSFI %'
-ylabel 'VFI %'
-
-legend('Total n=661')
-
-%% CSFI vs MD
-figure; hold on;
-c =lines(100);
-
-plot(G.CSFI_rate,G.VFI_rate,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
-plot(G.CSFI_rate,G.MD_30_2,'o','color',[0 0 0],'MarkerFaceColor',c(2,:))
-
-xlabel 'CSFI %'
-ylabel 'VFI-MD'
-
-legend({'VFI','MD'})
-
-%% CSFI vs MD subplot
-figure; subplot(1,2,1);hold on;
-c =lines(100);
-
-plot(G.CSFI_rate,G.VFI_rate,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
-
-xlabel 'CSFI %'
-ylabel 'VFI %'
-legend({'VFI'})
-
-
-subplot(1,2,2)
-plot(G.CSFI_rate,G.MD_30_2,'o','color',[0 0 0],'MarkerFaceColor',c(2,:))
-
-xlabel 'CSFI %'
-ylabel 'MD'
-
-legend({'MD'})
-
-%% CSFIvs MD
-figure; hold on;
-plot(G.CSFI_rate,G.MD_30_2,'o','color',[0 0 0],'MarkerFaceColor',c(2,:))
-
-xlabel 'CSFI %'
-ylabel 'MD'
-
-legend({'MD'})
-
-%%
-[h, p] =corr(G.CSFI_rate,G.VFI_rate)
-
-[h, p] =corr(G.CSFI_rate,G.MD_30_2)
-
-
-[h, p] =corr(G.VFI_rate,G.MD_30_2)
-
-%% Axial_length
-for jj = 1:length(G.Axial_length)
-    G.AL(jj) = str2double(G.Axial_length(jj));
-end
-
-Y = fieldnames(G);
-
-% for kk= 1:length(Y)
-for kk = [8,11,16,17,20,30]
-    try
-    figure;hold on;
-    plot(G.CSFI_rate,G.(Y{kk}),'o','color',[0 0 0],'MarkerFaceColor',c(kk,:))
-    
-    xlabel 'CSFI %'
-    ylabel(Y{kk})
-    catch
-    end
-    % save the fig
-    saveas(gca,Y{kk},'png')
-    saveas(gca,Y{kk},'fig')
-    saveas(gca,Y{kk},'eps2')
-end
-
-!mv *fig Figure/
-!mv *png Figure/
-!mv *eps Figure/
-
-%% AL
-inds = G.AL==0;
-
-figure; hold on;
-plot(G.CSFI_rate(~inds),G.AL(~inds),'o','color',[0 0 0],'MarkerFaceColor',c(kk,:));
-    lsline
-    xlabel 'CSFI %'
-    ylabel 'Axial length'
-
-set(gca,'YLim',[21 30])
-
-
-[h, p] =corr(G.CSFI_rate(~inds),G.AL(~inds))
-
-mdl = fitlm(G.CSFI_rate(~inds),G.AL(~inds))
-
-%%
-% legend({'MD'})
-figure;hold on;
-for kk = [8,11,17]
-    try
-    G.(Y{kk})(G.(Y{kk})==0)=nan;
-%     plot(G.CSFI_rate,G.(Y{kk}),'o','color',[0 0 0],'MarkerFaceColor',c(kk,:))
-    
-    plot(G.CSFI_rate,G.(Y{kk}),'o','color','none','MarkerFaceColor',c(kk,:))
-
-    
-    xlabel 'CSFI %'
-    ylabel(Y{kk})
-    legend({Y{8},Y{11},Y{17}})
-    catch
-    end
-end
-
-    saveas(gca,'3elements','png')
-    saveas(gca,'3elements','fig')
-    saveas(gca,'3elements','eps2')
-%% cpRNFL vs CSFI
-figure; hold on;
-x = G.CSFI_rate; y = G.cpRNFL;
-plot(x, y,'o')
-xlabel 'CSFI %'
-ylabel 'cpRNFL'
-
-%% cpRNFL vs MD
-figure; hold on;
-x = G.MD_30_2; y = G.cpRNFL;
-plot(x, y,'o')
-xlabel 'MD'
-ylabel 'cpRNFL'
-
-%% cpRNFL vs MD
-figure; hold on;
-x = G.VFI_rate; y = G.cpRNFL;
-plot(x, y,'o')
-xlabel 'VFI'
-ylabel 'cpRNFL'
-    
-    
-%% VFI_rate vs MD
-figure; hold on;
-c =lines(4);
-
-plot(G.MD_30_2,G.VFI_rate,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
-
-% plot(G.CSFI_rate,G.MD_30_2,'o','color',[0 0 0],'MarkerFaceColor',c(2,:))
-
-xlabel 'MD'
-ylabel 'VFI'
-
-%
-lsline
-
-[h,p] = corr(G.MD_30_2,G.VFI_rate)
-
-mdl = fitlm(G.MD_30_2,G.VFI_rate)
-
-% ANOVA ??????????????????????????????????????????
-anova(mdl,'summary')
-
-% ?????????????????????
-coefCI(mdl)
-
-% ??????????????????????????????
-
-[p,F,d] = coefTest(mdl)
-
-% legend({'VFI','MD'})
-
-
-%% Stage 1
-inds = G.MD_30_2>=-6; 
-x = G.CSFI_rate(inds);
-y = G.VFI_rate(inds);
-
-figure;hold on;
-plot(x,y,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
-xlabel CSFI
-ylabel VFI
-
-title Early
-lsline
-
-mdl = fitlm(x,y)
-
-[h,p] = corr(x, y)
-
-% MD
-x = G.CSFI_rate(inds);
-y = G.MD_30_2(inds);
-
-figure;hold on;
-plot(x,y,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
-xlabel CSFI
-ylabel MD
-
-title Early
-% lsline
-
-mdl = fitlm(x,y)
-
-[h,p] = corr(x, y)
-
-%% fit 2d VFI
-x = G.CSFI_rate(inds);
-y = G.VFI_rate(inds);
-
-[p,ErrorEst] = polyfit(x, y,2);
-y_fit = polyval(p,x,ErrorEst);
-
-figure; hold on;
-% each subject
-plot(x,y,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
-
-% fit
-plot(x,y_fit,'.');
-
-
-% figure;hold on;
-% plot(G.CSFI_rate(inds), G.VFI_rate(inds),'o',t2,y2)
-xlabel 'CSFI %'
-ylabel VFI
-
-% % figure; hold on;
-% res = y - y_fit;
-% plot(x,res,'o')
-
-%
-[y_fit,delta] = polyval(p,x,ErrorEst);
-
-% figure; hold on;
-%
-% plot(x,y,'o')
-% plot(x,y_fit,'g.')
-
-% 95% tile
-plot(x,y_fit+2*delta,'g.',...
-    x,y_fit-2*delta,'g.');
-
-corrcoef(x,y)
-
-[h,p] = corr(G.CSFI_rate(inds), G.VFI_rate(inds))
-
-
-%% fit 2d MD
-x = G.CSFI_rate(inds);
-y = G.MD_30_2(inds);
-
-[p,ErrorEst] = polyfit(x, y,2);
-y_fit = polyval(p,x,ErrorEst);
-
-figure; hold on;
-% each subject
-plot(x,y,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
-
-% fit
-plot(x,y_fit,'.');
-
-
-% figure;hold on;
-% plot(G.CSFI_rate(inds), G.VFI_rate(inds),'o',t2,y2)
-xlabel 'CSFI %'
-ylabel MD
-
-% % figure; hold on;
-% res = y - y_fit;
-% plot(x,res,'o')
-
-%
-[y_fit,delta] = polyval(p,x,ErrorEst);
-
-% figure; hold on;
-%
-% plot(x,y,'o')
-% plot(x,y_fit,'g.')
-
-% 95% tile
-plot(x,y_fit+2*delta,'g.',...
-    x,y_fit-2*delta,'g.');
-
-corrcoef(x,y)
-
-[h,p] = corr(G.CSFI_rate(inds), G.VFI_rate(inds))
-
-return
-% SO 2017/1/25
-
-
-%% stage 2
-inds = G.MD_30_2<-6 & G.MD_30_2>=-12 ; 
-
-x = G.CSFI_rate(inds);
-y = G.VFI_rate(inds);
-
-figure;hold on;
-plot(x,y,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
-xlabel CSFI
-ylabel VFI
-
-title Middle
-lsline
-
-mdl = fitlm(x,y)
-
-[h,p] = corr(x, y)
-
-% MD
-x = G.CSFI_rate(inds);
-y = G.MD_30_2(inds);
-
-figure;hold on;
-plot(x,y,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
-xlabel CSFI
-ylabel MD
-
-title Middle
-lsline
-
-mdl = fitlm(x,y)
-
-[h,p] = corr(x, y)
-
-%% stage 3
-inds = G.MD_30_2<-12 ; 
-
-x = G.CSFI_rate(inds);
-y = G.VFI_rate(inds);
-
-figure;hold on;
-plot(x,y,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
-xlabel CSFI
-ylabel VFI
-
-title Advance
-lsline
-
-mdl = fitlm(x,y)
-
-[h,p] = corr(x, y)
-
-% MD
-x = G.CSFI_rate(inds);
-y = G.MD_30_2(inds);
-
-figure;hold on;
-plot(x,y,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
-xlabel CSFI
-ylabel MD
-
-title Advance
-lsline
-
-mdl = fitlm(x,y)
-
-[h,p] = corr(x, y)
-
-
-%% fit 2d VFI
-x = G.CSFI_rate(inds);
-y = G.VFI_rate(inds);
-
-[p,ErrorEst] = polyfit(x, y,2);
-y_fit = polyval(p,x,ErrorEst);
-
-figure; hold on;
-% each subject
-plot(x,y,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
-
-% fit 
-plot(x,y_fit,'.');
-
-
-% figure;hold on;
-% plot(G.CSFI_rate(inds), G.VFI_rate(inds),'o',t2,y2)
-xlabel 'CSFI %'
-ylabel VFI
-
-% % figure; hold on;
-% res = y - y_fit;
-% plot(x,res,'o')
-
-% 
-[y_fit,delta] = polyval(p,x,ErrorEst);
-
-% figure; hold on;
-% 
-% plot(x,y,'o')
-% plot(x,y_fit,'g.')
-
-% 95% tile
-plot(x,y_fit+2*delta,'g.',...
-     x,y_fit-2*delta,'g.');
-
-corrcoef(x,y)
- 
-[h,p] = corr(G.CSFI_rate(inds), G.VFI_rate(inds))
-
-
-%% fit 2d MD
-x = G.CSFI_rate(inds);
-y = G.MD_30_2(inds);
-
-[p,ErrorEst] = polyfit(x, y,2);
-y_fit = polyval(p,x,ErrorEst);
-
-figure; hold on;
-% each subject
-plot(x,y,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
-
-% fit 
-plot(x,y_fit,'.');
-
-
-% figure;hold on;
-% plot(G.CSFI_rate(inds), G.VFI_rate(inds),'o',t2,y2)
-xlabel 'CSFI %'
-ylabel MD
-
-% % figure; hold on;
-% res = y - y_fit;
-% plot(x,res,'o')
-
-% 
-[y_fit,delta] = polyval(p,x,ErrorEst);
-
-% figure; hold on;
-% 
-% plot(x,y,'o')
-% plot(x,y_fit,'g.')
-
-% 95% tile
-plot(x,y_fit+2*delta,'g.',...
-     x,y_fit-2*delta,'g.');
-
-corrcoef(x,y)
- 
-[h,p] = corr(G.CSFI_rate(inds), G.VFI_rate(inds))
-
-
-
-
-
-%% CSFI vs VFI 
-% plot(C.CSFI_rate,C.VFI_rate,'o')
-% plot(N.CSFI_rate,N.VFI_rate,'o')
-% plot(P.CSFI_rate,P.VFI_rate,'o')
-figure;
-hold on;
-
-plot(C.CSFI_rate,C.VFI_rate,'o','color',c(1,:),'MarkerFaceColor',c(1,:))
-
-plot(G.CSFI_rate,G.VFI_rate,'o','color',[0 0 0],'MarkerFaceColor',c(2,:))
-
-
-plot(N.CSFI_rate,N.VFI_rate,'o','color',[0 0 0],'MarkerFaceColor',c(2,:))
-plot(P.CSFI_rate,P.VFI_rate,'o','color',[0 0 0],'MarkerFaceColor',c(3,:))
-
-xlabel 'CSFI %'
-ylabel 'VFI %'
-
-legend({'Healthy','NTG','POAG'})
-legend({'NTG','POAG'})
-
-
-%% NTG vs POAG
-figure; hold on;
-c =lines(4);
-
-plot(N.CSFI_rate,N.VFI_rate,'o','color',[0 0 0],'MarkerFaceColor',c(2,:))
-plot(P.CSFI_rate,P.VFI_rate,'o','color',[0 0 0],'MarkerFaceColor',c(3,:))
-
-xlabel 'CSFI %'
-ylabel 'VFI %'
-
-legend({'NTG','POAG'})
-
-
-%% CSFI ???3????????????????????????
-[h,p] = ttest2(C.CSFI_rate,N.CSFI_rate) % S
-[h,p] = ttest2(C.CSFI_rate,P.CSFI_rate) % S
-[h,p] = ttest2(N.CSFI_rate,P.CSFI_rate) % N.S.
-
-% NTG???POAG?????????????????????
-
-%%
-[h,p] = corr(C.age,C.CSFI_rate) % n.s
-[h,p] = corr(N.age,N.CSFI_rate) % n.s
-[h,p] = corr(P.age,P.CSFI_rate) % S
-
-%% CSFI vs MD
-figure; hold on;
-c = jet(4);
-
-plot(C.CSFI_rate,C.MD_24_2,'o','color',c(1,:),'MarkerFaceColor',c(1,:))
-plot(N.CSFI_rate,N.MD_24_2,'o','color',c(2,:),'MarkerFaceColor',c(2,:))
-plot(P.CSFI_rate,P.MD_24_2,'o','color',c(3,:),'MarkerFaceColor',c(3,:))
-
-xlabel 'CSFI %'
-ylabel 'MD'
-
-legend({'Healthy','NTG','POAG'})
-
-%% MD_24_2 ???3????????????????????????
-[h,p] = ttest2(C.MD_24_2,N.MD_24_2) % S
-[h,p] = ttest2(C.MD_24_2,P.MD_24_2) % S
-[h,p] = ttest2(N.MD_24_2,P.MD_24_2) % S P= 0.008
-
-% 3????????????????????????
-
-%%
-
-
-% load data
-G = readtable('Glc.csv');
-
-
-%% MD vs VFI
-
-figure; hold on;
-c = jet(4);
-
-% plot(G.CSFI_rate,G.VFI_rate,'o')
-
-xlabel 'CSFI %'
-ylabel 'VFI %'
-
-% fit 2d
-p = polyfit(G.CSFI_rate,G.VFI_rate,2);
-
-t2 = -0:1:100;
-y2 = polyval(p,t2);
-
-% figure;hold on;
-plot(G.CSFI_rate,G.VFI_rate,'o',t2,y2)
-xlabel 'CSFI %'
-ylabel VFI
-
-[h,p] = corr(G.CSFI_rate,G.VFI_rate)
-
-%%
-
-figure; hold on;
-c = jet(4);
-
-% fit 2d
-p = polyfit(G.CSFI_rate,G.MD_24_2,2);
-
-t2 = 0:1:100;
-y2 = polyval(p,t2);
-
-% figure;hold on;
-plot(G.CSFI_rate,G.MD_24_2,'o',t2,y2)
-xlabel 'CSFI %'
-ylabel 'MD'
-
-
-[h,p] = corr(G.CSFI_rate,G.MD_24_2)
-
-
-%% additional 3
-c = jet(15);
-
-for Min = -12:3:30;
-    figure;
-    inds =G.MD_30_2<=Min+3  & G.MD_30_2>Min ;
-    
-    x = G.CSFI_rate(inds);
-    y = G.VFI_rate(inds);
-    
-    figure;hold on;
-    plot(x,y,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
-    xlabel CSFI
-    ylabel VFI
-    
-    title(sprintf('%d-%d',Min,Min+3))
-    lsline
-    
-%     mdl = fitlm(x,y)
-    
-    [h,p] = corr(x, y)
-    
-    legend(sprintf('r = %d',h))
-end
-
-%% additional 3
-c = jet(15);
-
-for Min = -30:3:3;
-    figure;
-    inds =G.MD_30_2<=Min+3  & G.MD_30_2>Min ;
-    
-    x = G.CSFI_rate(inds);
-    y = G.MD_30_2(inds);
-    
-    figure;hold on;
-    plot(x,y,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
-    xlabel CSFI
-    ylabel MD
-    
-    title(sprintf('%d-%d',Min,Min+3))
-    lsline
-    
-%     mdl = fitlm(x,y)
-    
-    [h,p] = corr(x, y)
-    
-    legend(sprintf('r = %d',h))
-end
-
-%%
-% MD
-x = G.CSFI_rate(inds);
-y = G.MD_30_2(inds);
-
-figure;hold on;
-plot(x,y,'o','color',[0 0 0],'MarkerFaceColor',c(1,:))
-xlabel CSFI
-ylabel MD
-
-title Advance
-lsline
-
-mdl = fitlm(x,y)
-
-[h,p] = corr(x, y)
-
 

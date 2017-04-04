@@ -11,13 +11,15 @@ rows =  T.FP< .15 & T.FN<.33 & T.FixLoss_pcnt<.2;
 T2 = T(rows,:);
 
 figure; hold on;
-subplot(1,2,1)
+% subplot(1,2,1)
 plot(T2.CSFI,T2.MD30_2,'*r') % n = 575
 title 'Good HFA n =572 '  
 xlabel CSFI
 ylabel MD30-2
 
-subplot(1,2,2)
+% subplot(1,2,2)
+figure; hold on;
+
 plot(T.CSFI,T.MD30_2,'*') % n = 661
 title 'all subject n=661' 
 xlabel CSFI

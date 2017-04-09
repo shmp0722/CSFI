@@ -249,17 +249,16 @@ mdl = fitlm(x,y)
 
 % wRGC
 figure; hold on;
-plot(T2.RGC_HFA(inds),T2.wRGC(inds),'or')
-plot(T2.RGC_OCT(inds),T2.wRGC(inds),'ob')
+plot(T2.RGC_HFA,T2.wRGC,'or')
+plot(T2.RGC_OCT,T2.wRGC,'ob')
 xlabel('RGC count','FontSize',18)
 ylabel('wRGC','FontSize',18)
 lsline
 axis equal
 get(gca, 'xlim')
-% set(gca,'xlim',[170 1800])
-plot(170:1800,170:1800,'g--')
+set(gca,'xlim',[0 1800])
+plot(0:1800,0:1800,'g--')
 legend({'RGC HFA','RGC OCT','wRGC'})
-title('Early','FontSize',18)
 
 %% RGC
 
@@ -326,20 +325,6 @@ y = T2.VFI(inds);
 mdl = fitlm(x,y)
 [h,p] = corrcoef(x, y)
 
-
-figure; hold on;
-plot(T2.RGC_HFA(inds),T2.wRGC(inds),'or')
-plot(T2.RGC_OCT(inds),T2.wRGC(inds),'ob')
-xlabel('RGC count','FontSize',18)
-ylabel('wRGC','FontSize',18)
-lsline
-axis equal
-get(gca, 'xlim')
-% set(gca,'xlim',[170 1800])
-plot(170:1800,170:1800,'g--')
-legend({'RGC HFA','RGC OCT','wRGC'})
-title('Middle','FontSize',18)
-
 %% RGC
 
 figure; hold on;
@@ -404,23 +389,6 @@ x = T2.CSFI(inds);
 y = T2.VFI(inds);
 mdl = fitlm(x,y) % R2= 0.69
 [h,p] = corrcoef(x, y)% -0.83
-
-
-figure; hold on;
-plot(T2.RGC_HFA(inds),T2.wRGC(inds),'or')
-plot(T2.RGC_OCT(inds),T2.wRGC(inds),'ob')
-plot(0:1200,0:1200,'g--')
-legend({'RGC HFA','RGC OCT','wRGC'})
-
-xlabel('RGC count','FontSize',18)
-ylabel('wRGC','FontSize',18)
-lsline
-get(gca, 'xlim')
-% set(gca,'xlim',[170 1800])
-
-axis equal
-set(gca,'xlim',[0 1200],'ylim',[0,1200])
-title('End','FontSize',18)
 
 %% RGC
 

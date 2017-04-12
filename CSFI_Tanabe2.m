@@ -67,7 +67,7 @@ clear p
 
 %% NTG Gender
 
-[tbl,chi2,p,labels] = crosstab(T2.Type,T2.Gender)
+[tbl,chi2,p,labels] = crosstab(T2.Type,T2.Gender);
 [h,p,stats] = fishertest(tbl)
 
 
@@ -86,8 +86,10 @@ legend({'NTG','POAG'})
 %% ANCOV
 % there is no difference due to glc type
 [h,atab,ctab,stats] = aoctool(T2.CSFI, T2.MD30_2,T2.Type);
-
 [h,atab,ctab,stats] = aoctool(T2.CSFI, T2.VFI,T2.Type);
+
+[h,atab,ctab,stats] = aoctool(T2.cpRNFL, T2.cpRNFL,T2.Type);
+% [h,atab,ctab,stats] = aoctool(T2.CSFI, T2.VFI,T2.Type);
 
 %% CSFI vs MD
 figure; hold on;
@@ -605,7 +607,6 @@ mdl = fitlm(x,y)
 
 
 %% linear regression fit
-
 
 names = fieldnames(T2);
 

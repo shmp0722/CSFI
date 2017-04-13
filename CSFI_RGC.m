@@ -72,12 +72,21 @@ ylabel MD
 [h,atab,ctab,stats] = aoctool(T2.RGC_HFA, T2.VFI,T2.Type);
 
 [h,atab,ctab,stats] = aoctool(T2.wRGC, T2.VFI,T2.Type);
+[h,atab,ctab,stats] = aoctool(T2.wRGC, T2.RGC_HFA,T2.Type);
+[h,atab,ctab,stats] = aoctool(T2.wRGC, T2.RGC_OCT,T2.Type);
 
 
+[h,atab,ctab,stats] = aoctool(T2.RGC_HFA, T2.RGC_OCT,T2.Type);
 
 [h,atab,ctab,stats] = aoctool(T2.CSFI, T2.VFI,T2.Type);
+[h,atab,ctab,stats] = aoctool(T2.CSFI, T2.wRGC,T2.Type);
+[h,atab,ctab,stats] = aoctool(T2.CSFI, T2.RGC_HFA,T2.Type);
+[h,atab,ctab,stats] = aoctool(T2.CSFI, T2.RGC_OCT,T2.Type);
 
-[h,atab,ctab,stats] = aoctool(T2.CSFI, T2.MD30_2,T2.Type);
+
+
+
+[h,atab,ctab,stats] = aoctool(T2.VFI, T2.MD30_2,T2.Type);
 
 
 %% RGC

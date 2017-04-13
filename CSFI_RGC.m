@@ -63,10 +63,21 @@ ylabel MD
 
 [h,atab,ctab,stats] = aoctool(T2.RGC_OCT, T2.MD30_2,T2.Type);
 
+[h,atab,ctab,stats] = aoctool(T2.wRGC, T2.MD30_2,T2.Type);
+
+[h,atab,ctab,stats] = aoctool(T2.RGC_HFA, T2.MD30_2,T2.Type);
+
+[h,atab,ctab,stats] = aoctool(T2.RGC_OCT, T2.VFI,T2.Type);
+
+[h,atab,ctab,stats] = aoctool(T2.RGC_HFA, T2.VFI,T2.Type);
+
+[h,atab,ctab,stats] = aoctool(T2.wRGC, T2.VFI,T2.Type);
+
+
+
 [h,atab,ctab,stats] = aoctool(T2.CSFI, T2.VFI,T2.Type);
 
 [h,atab,ctab,stats] = aoctool(T2.CSFI, T2.MD30_2,T2.Type);
-
 
 
 %% RGC
@@ -145,7 +156,7 @@ legend({'RGC HFA','RGC OCT','wRGC'})
 % lsline
 label ={'RGC HFA','wRGC'};
 addpath(genpath('BlandAltman'))
-BlandAltman(T2.RGC_HFA,T2.wRGC,label)
+BlandAltman(T2.RGC_HFA,T2.wRGC,label,'colors')
 
 label ={'RGC OCT','wRGC'};
 BlandAltman(T2.RGC_OCT,T2.wRGC,label)
@@ -203,8 +214,6 @@ xlabel 'ratio'
 ylabel  'MD'
 % axis equal
 legend({'HFA','OCT'})
-
-
 
 figure; hold on;
 plot(T2.RGC_HFA,T2.MD30_2,'or')

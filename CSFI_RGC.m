@@ -124,8 +124,34 @@ legend({'RGC HFA','RGC OCT'})
 % Bland Altman From matlab exchange
 addpath(genpath('BlandAltman'))
 label ={'RGC HFA','RGC OCT'};
-BlandAltman(T2.RGC_OCT,T2.RGC_HFA,label)
+[rpc, fig, stats] = BlandAltman(T2.RGC_OCT,T2.RGC_HFA,label)
 
+%%
+figure; hold on;
+X =(T2.RGC_OCT+T2.RGC_HFA)/2;
+Y =  T2.RGC_HFA-T2.RGC_OCT;
+plot(X,Y,'o')
+lsline
+
+inv = std(Y)*1.96;
+ave = mean(Y);
+
+line([0,1500],[ave + inv,ave + inv])
+line([0,1500],[ave - inv,ave - inv])
+line([0,1500],[ave ,ave])
+
+fitlm(X,Y)
+
+[stats.polyCoefs, stats.polyFitStruct] = polyfit(X, Y, 1);
+r = corrcoef(X,Y); 
+stats.r=r(1,2);
+stats.r2 = stats.r^2;
+stats.rho = corr(X,Y,'type','Spearman');
+stats.N = length(X);
+% stats.SSE = sum((polyval(stats.polyCoefs,data.maskedSet1)-data.maskedSet2).^2);
+% stats.RMSE = sqrt(stats.SSE/(stats.N-2));
+stats.slope = stats.polyCoefs(1);
+stats.intercept = stats.polyCoefs(2);
 %% lowess
 figure; hold on;
 span = 0.5;
@@ -391,7 +417,7 @@ plot(T2.wRGC(inds),T2.MD30_2(inds),'og')
 xlabel 'RGC count'
 ylabel MD
 
-%% End stage 3
+%% Advanced stage 3
 inds = T2.MD30_2<-12 ; 
 x = T2.CSFI(inds);
 y = T2.MD30_2(inds);

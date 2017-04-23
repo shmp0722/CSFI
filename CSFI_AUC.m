@@ -77,7 +77,7 @@ AUC; % 0.93
 
 [X,Y,t,AUC] = perfcurve(label, [T2.wRGC(inds);N.wRGC],'Normal');
 plot(X,Y)
-AUC; % 0.92
+AUC; % 0.93
 
 [X,Y,t,AUC] = perfcurve(label, [T2.RGC_HFA(inds);N.RGC_HFA],'Normal');
 plot(X,Y,'--')
@@ -94,7 +94,7 @@ legend({'CSFI','MD','cpRNFL','wRGC','RGC HFA','RGC OCT'})
 
 %% Middle OAG vs Normal
 clear inds; 
-inds = -12< T2.MD30_2 <= -6 ; 
+inds = T2.MD30_2<-6 & T2.MD30_2>=-12 ; 
 
 label = [T2.Type(inds);N.Type];
 
@@ -127,6 +127,44 @@ AUC % 0.92
 xlabel('FP rate')
 ylabel('TP rate')
 title('ROC for diagnosing Midddle OAG')
+legend({'CSFI','MD','cpRNFL','wRGC','RGC HFA','RGC OCT'})
+
+
+%% Advance OAG vs Normal
+clear inds; 
+inds = T2.MD30_2 < -12 ; 
+
+label = [T2.Type(inds);N.Type];
+
+% ROC curve 
+figure; hold on;
+[X,Y,t,AUC] = perfcurve(label, [T2.CSFI(inds);N.CSFI_rate/100],'Normal');
+plot(Y, X,'linewidth',2)
+1-AUC % 0.92
+
+[X,Y,t,AUC] = perfcurve(label, [T2.MD30_2(inds);N.MD_30_2],'Normal');
+plot(X,Y)
+AUC % 0.84
+
+[X,Y,t,AUC] = perfcurve(label, [T2.cpRNFL(inds);N.cpRNFL],'Normal');
+plot(X,Y)
+AUC % 0.93
+
+[X,Y,t,AUC] = perfcurve(label, [T2.wRGC(inds);N.wRGC],'Normal');
+plot(X,Y)
+AUC; % 0.92
+
+[X,Y,t,AUC] = perfcurve(label, [T2.RGC_HFA(inds);N.RGC_HFA],'Normal');
+plot(X,Y,'--')
+AUC % 0.83
+
+[X,Y,t,AUC] = perfcurve(label, [T2.RGC_OCT(inds);N.RGC_OCT],'Normal');
+plot(X,Y,'--')
+AUC % 0.92
+
+xlabel('FP rate')
+ylabel('TP rate')
+title('ROC for diagnosing A OAG')
 legend({'CSFI','MD','cpRNFL','wRGC','RGC HFA','RGC OCT'})
 
 %% NTG vs POAG

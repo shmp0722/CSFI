@@ -17,7 +17,7 @@ T2 = T(rows,:);
 
 N = readtable('Normal.csv');
 
-%%
+%% gender check
 tbl = [10,4; 372, 200];
 [h,p,stats] = fishertest(tbl)
 

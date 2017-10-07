@@ -121,9 +121,13 @@ function [rpc, fig, stats] = BlandAltman(varargin)
 
 % Correlation plot
 stats = CalcCorrelationStats(data, params);
+params.markerSize = 6;
+% set(gca,'FontSize',18)
+
 PlotCorrelation(cAH, data, params);
 params = FormatPlotAxes(cAH, data, params);
 DisplayCorrelationStats(cAH, params, stats);
+% set(gca,'FontSize',18)
 
 % Bland-Altman plot of differences plot
 [stats, data, params] = CalcBAStats(stats, data, params);

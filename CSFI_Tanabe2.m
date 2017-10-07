@@ -724,6 +724,24 @@ addpath(genpath('BlandAltman'))
 label ={'RGC HFA','RGC OCT'};
 [rpc, fig, stats] = BlandAltman(T2.RGC_OCT,T2.RGC_HFA,label);
 
+% set(gca , 'FontSize',18)
+%% by myself
+figure; hold on;
+plot(T2.RGC_OCT,T2.RGC_HFA, 'o')
+lsline
+axis equal
+xlabel 'RGC OCT'
+ylabel 'RGC HFA'
+set(gca, 'FontSize',18, 'XLim',get(gca,'YLim'))
+title 'Correlation plot'
+
+[x1] = get(gca,'YLim');
+x = linspace( x1(1), x1(2) );
+
+plot(x, x, '--k')
+title 'Correlation plot'
+
+%%
 [h,p,ci,stats]= ttest(T2.RGC_OCT,T2.RGC_HFA)
 
 
